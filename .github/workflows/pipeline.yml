@@ -1,0 +1,59 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  simple_deployment_pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm install
+      - name: Install backend dependencies
+        run: cd backend && npm install
+
+      - name: Check frontend style
+        run: cd frontend && npm run lint
+
+      - name: Build
+        run: cd backend && npm run build:ui
+
+      - name: Trigger deployment
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '#skip') == false }}
+        run: curl ${{ secrets.RENDER_HOOK }}
+      - name: Notify Discord on success
+        if: ${{ success() }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: "Pokedex deployment bot"
+          DISCORD_EMBEDS: '[{"title": "Success", "color": 3066993, "description": "A new version of ${{ github.repository }} has been deployed to https://full-stack-open-pokedex-i5lc.onrender.com/."}]'
+        uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554
+      - name: Notify Discord on failure
+        if: ${{ failure() }}
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: "Pokedex deployment bot"
+          DISCORD_EMBEDS: '[{"title": "Failure", "color": 15158332, "description": "Commit ${{ github.event.head_commit.url }} by ${{ github.actor }} broke the build."}]'
+        uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554
+
+  tag_release:
+    needs: [simple_deployment_pipeline]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump version and push tag
+        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '#skip') == false }}
+        uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
