@@ -56,20 +56,20 @@ const App = () => {
           setPersons(persons.map(person => person.id !== oldPerson["id"] ? person : updatedPerson))
           notify(`Updated ${updatedPerson["name"]}`, true)
         })
-        .catch(error => {
+        .catch(() => {
           notify(`Couldn't update information for ${oldPerson["name"]} as it doesn't exist`, false)
         })
       }
     } else {
       personService
       .create(personObject)
-      .then(newPerson=> {
+      .then(()=> {
         setPersons(persons.concat(personObject))
         setNewName('')
         setNewNumber('')
         notify(`Added ${personObject["name"]}`, true)
       })
-      .catch(error => {
+      .catch(() => {
         notify(`Couldn't add ${newName}, please try again later`, false)
       })
     }
@@ -83,7 +83,7 @@ const App = () => {
       setPersons(newPersons)
       notify(`Removed ${persons.find(person => person.id === id)["name"]}`, true)
     })
-    .catch(error => {
+    .catch(() => {
       notify(`${persons.find(person => person.id === id)["name"]} couldn't be removed, please try again later`, false)
     })
   }
