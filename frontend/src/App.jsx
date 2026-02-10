@@ -111,7 +111,6 @@ const App = () => {
       <Persons personsToShow={personsToShow} removePerson={removePerson}/>
     </div>
   )
-
 }
 
 export default App
