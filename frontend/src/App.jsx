@@ -96,7 +96,7 @@ const App = () => {
 
   return (
     <div>
-      <h1>Phonebook</h1>
+      <h1>Phonebook v2</h1>
       <Notification message={message} value={messageValue}/>
       <FilterPanel onChange={handleFilter}/>
       <h2>Add new</h2>
