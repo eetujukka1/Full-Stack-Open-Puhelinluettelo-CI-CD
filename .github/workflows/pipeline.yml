@@ -45,15 +45,3 @@ jobs:
           DISCORD_USERNAME: "Pokedex deployment bot"
           DISCORD_EMBEDS: '[{"title": "Failure", "color": 15158332, "description": "Commit ${{ github.event.head_commit.url }} by ${{ github.actor }} broke the build."}]'
         uses: Ilshidur/action-discord@d2594079a10f1d6739ee50a2471f0ca57418b554
-
-  tag_release:
-    needs: [simple_deployment_pipeline]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Bump version and push tag
-        if: ${{ github.event_name == 'push' && contains(github.event.head_commit.message, '#skip') == false }}
-        uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: patch
