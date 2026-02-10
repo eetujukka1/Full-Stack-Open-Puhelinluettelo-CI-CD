@@ -56,21 +56,21 @@ const App = () => {
           setPersons(persons.map(person => person.id !== oldPerson["id"] ? person : updatedPerson))
           notify(`Updated ${updatedPerson["name"]}`, true)
         })
-        .catch(() => {
-          notify(`Couldn't update information for ${oldPerson["name"]} as it doesn't exist`, false)
+        .catch(error => {
+          notify(`Couldn't update information for ${oldPerson["name"]}`, false)
         })
       }
     } else {
       personService
       .create(personObject)
-      .then(()=> {
-        setPersons(persons.concat(personObject))
+      .then(newPerson=> {
+        setPersons(persons.concat(newPerson))
         setNewName('')
         setNewNumber('')
         notify(`Added ${personObject["name"]}`, true)
       })
-      .catch(() => {
-        notify(`Couldn't add ${newName}, please try again later`, false)
+      .catch(error => {
+        notify(error.response.data.error, false)
       })
     }
   }
@@ -83,7 +83,7 @@ const App = () => {
       setPersons(newPersons)
       notify(`Removed ${persons.find(person => person.id === id)["name"]}`, true)
     })
-    .catch(() => {
+    .catch(error => {
       notify(`${persons.find(person => person.id === id)["name"]} couldn't be removed, please try again later`, false)
     })
   }
@@ -111,6 +111,7 @@ const App = () => {
       <Persons personsToShow={personsToShow} removePerson={removePerson}/>
     </div>
   )
+
 }
 
 export default App
